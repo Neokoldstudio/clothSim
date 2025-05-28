@@ -19,11 +19,18 @@
 class ExplicitEuler : public Integrator
 {
 public:
-
     // TODO Implement explicit Euler integration that advances @a particleSystem by one time step @a dt.
     //
-    virtual void step(ParticleSystem* particleSystem, float dt) override
+    virtual void step(ParticleSystem *particleSystem, float dt) override
     {
-    }
+        particleSystem->computeForces();
+        Eigen::VectorXf dqdt;
+        particleSystem->derivs(dqdt);
+        Eigen::VectorXf q;
+        particleSystem->getState(q);
 
+        q += dt * dqdt;
+
+        particleSystem->setState(q);
+    }
 };
