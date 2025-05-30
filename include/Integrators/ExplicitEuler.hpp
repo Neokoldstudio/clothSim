@@ -23,7 +23,6 @@ public:
     //
     virtual void step(ParticleSystem *particleSystem, float dt) override
     {
-        particleSystem->computeForces();
         Eigen::VectorXf dqdt;
         particleSystem->derivs(dqdt);
         Eigen::VectorXf q;
