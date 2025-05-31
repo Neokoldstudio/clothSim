@@ -22,6 +22,21 @@ public:
     //
     virtual void step(ParticleSystem* particleSystem, float dt) override
     {
+        Eigen::VectorXf dqdt;
+        particleSystem->derivs(dqdt);
+        Eigen::VectorXf q;
+        particleSystem->getState(q);
+
+        Eigen::VectorXf qMidPoint = q + 0.5f * dt * dqdt;
+        Eigen::VectorXf dqdtMidPoint;//vector storing the derivatives at mid point
+
+        //to compute the derivative at mid point, we can advance the system to the midpoint, and then call the derivs() fnc:
+        particleSystem->setState(qMidPoint);
+        particleSystem->derivs(dqdtMidPoint);
+
+        q += dt*dqdtMidPoint;
+
+        particleSystem->setState(q);
     }
 
 };
