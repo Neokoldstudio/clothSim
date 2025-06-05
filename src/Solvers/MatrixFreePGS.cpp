@@ -14,12 +14,13 @@ void MatrixFreePGS::solve(float dt, std::vector<Eigen::Vector3f>& x)
     //
     // where x is assumed to be the velocity updates deltav used by the integrator.
     //
-    std::vector<Eigen::Vector3f> b;
-    std::vector<Eigen::LDLT<Eigen::Matrix3f>> P;
+    int nbParticules = m_particleSystem->getParticles().size();
+
+    x.resize(nbParticules);
+    std::vector<Eigen::Vector3f> b(nbParticules);
+    std::vector<Eigen::LDLT<Eigen::Matrix3f>> P(nbParticules);
     buildRHS(dt, b);
     buildBlockDiagonal(dt, P);
-    
-    int nbParticules = m_particleSystem->getParticles().size();
 
     for (int i = 0; i < nbParticules; i++) {
         Particle *p = m_particleSystem->getParticles()[i];
@@ -41,40 +42,38 @@ void MatrixFreePGS::buildRHS(float dt, std::vector<Eigen::Vector3f>& b)
     // TODO Build the right-hand side block vector:
     //   b = dt * f + dt * dt * dfdx * v
     // for each particle
+    b.resize(m_particleSystem->getParticles().size());
 
-    int nbParticules = m_particleSystem->getParticles().size();
-
-    for (int i = 0; i < nbParticules; i++) {
-        Particle *p = m_particleSystem->getParticles()[i];
-        b[i] = dt*p->f;
+    for (Particle* p : m_particleSystem->getParticles()) {
+        b[p->index] = dt*p->f;
         for(std::pair<Spring *, int> pair : p->springs) {
             int j = (pair.second + 1) % 2;
             Particle* otherParticle = pair.first->particles[j];
             Spring *s = pair.first;
-            b[i] += dt*dt*(s->dfdx * p->v - s->dfdx * otherParticle->v);
-        } 
+            b[p->index] += dt*dt*(s->dfdx * p->v - s->dfdx * otherParticle->v);
+        }
     }
 }
 
 void MatrixFreePGS::buildBlockDiagonal(float dt, std::vector<Eigen::LDLT<Eigen::Matrix3f>>& P)
 {
     // TODO Build and compute the Cholesky decomposition of the block diagonal matrices
-    //   A = M - dt*dfdv - dt*dt*dfdx 
+    //   A = M - dt*dfdv - dt*dt*dfdx
     // Store the result in the array P, such that each entry contains
     //    P = llt(A)
     // for each particle.
     const int nbParticules = m_particleSystem->getParticles().size();
     std::vector<Eigen::Matrix3f> M(nbParticules);
+    P.resize(nbParticules);
 
-    for (int i = 0; i < nbParticules; i++) {
-        Particle* p =  m_particleSystem->getParticles()[i];
-        M[i] = p->m * Eigen::Matrix3f::Identity();
+    for (Particle* p : m_particleSystem->getParticles()) {
+        M[p->index] = p->m * Eigen::Matrix3f::Identity();
 
         for(std::pair<Spring *, int> pair : p->springs) {
             Spring* s = pair.first;
-            M[i] -= dt*dt*s->dfdx;
+            M[p->index] -= dt*dt*s->dfdx;
         }
-        P[i] = M[i].ldlt();
+        P[p->index] = M[p->index].ldlt();
     }
 }
 
