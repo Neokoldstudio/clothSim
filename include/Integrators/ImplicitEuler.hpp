@@ -9,7 +9,7 @@
  * Code permanent :
  * Email :
  *
- */
+ */ 
 
 #include "Integrators/Integrator.h"
 #include "ParticleSystem.h"
@@ -33,7 +33,7 @@ public:
     //
     virtual void step(ParticleSystem* particleSystem, float dt) override
     {
-
+        
     }
 
 };

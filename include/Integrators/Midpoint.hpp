@@ -30,7 +30,7 @@ public:
         Eigen::VectorXf qMidPoint = q + 0.5f * dt * dqdt;
         Eigen::VectorXf dqdtMidPoint;//vector storing the derivatives at mid point
 
-        //to compute the derivative at mid point, we can advance the system to the midpoint, and then call the derivs() fnc:
+        //to compute the derivative at mid point, we can advance the system to the midpoint, and then call the derivs() fnc to get the correct derivatives at the midpoint
         particleSystem->setState(qMidPoint);
         particleSystem->derivs(dqdtMidPoint);
 

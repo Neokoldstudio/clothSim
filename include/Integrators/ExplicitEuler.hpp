@@ -28,7 +28,7 @@ public:
         Eigen::VectorXf q;
         particleSystem->getState(q);
 
-        q += dt * dqdt;
+        q += dt * dqdt;//explicit integration step
 
         particleSystem->setState(q);
     }
