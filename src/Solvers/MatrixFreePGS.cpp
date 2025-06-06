@@ -12,8 +12,10 @@ void MatrixFreePGS::solve(float dt, std::vector<Eigen::Vector3f>& x)
     // TODO implement the matrix-free PGS solver for the particle systems to solve
     //  for (M - dt*dfdv - dt*dt*dfdx) x = dt * f + dt * dt * dfdx * v
     //
-    // where x is assumed to be the velocity updates deltav used by the integrator.
+    // where x is assumed to be the velocity updates deltav used by the
+    // integrator.
     //
+    m_particleSystem->dfdx();
     int nbParticules = m_particleSystem->getParticles().size();
 
     x.resize(nbParticules);
@@ -30,7 +32,7 @@ void MatrixFreePGS::solve(float dt, std::vector<Eigen::Vector3f>& x)
             for(std::pair<Spring *, int> pair : p->springs) {
                 int j = (pair.second+1)%2;
                 Spring *s = pair.first;
-                x[i] += (dt*dt*s->dfdx) * x[s->particles[j]->index];
+                x[i] -= (dt*dt*s->dfdx) * x[s->particles[j]->index];
             }
             x[i] = P[i].solve(x[i]);
         }

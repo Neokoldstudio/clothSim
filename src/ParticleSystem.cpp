@@ -116,6 +116,8 @@ void ParticleSystem::dfdx() {
     //
     for (Spring *spring : m_springs) {
         float length = (spring->particles[1]->x - spring->particles[0]->x).norm();
+        if (length < 1e-6f) length = 1e-6f;
+
         Eigen::Matrix<float, 3, 3> alpha = spring->k * (1 - spring->r / length) * Eigen::Matrix<float, 3, 3>::Identity();
 
         Eigen::Matrix<float, 3, 3> dfdx = -alpha - spring->k * (spring->r / length) * (((spring->particles[1]->x - spring->particles[0]->x) / length) * ((spring->particles[1]->x - spring->particles[0]->x).transpose() / length));

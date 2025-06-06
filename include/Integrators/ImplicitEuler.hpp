@@ -39,8 +39,8 @@ public:
 
         for(Particle* p : particleSystem->getParticles())
         {
-            p->v += Eigen::Vector3f::Zero();// deltav[p->index]; // Update velocities
-            p->x += Eigen::Vector3f::Zero();//dt * p->v;        // Update positions
+            p->v += deltav[p->index]; // Update velocities
+            p->x += dt * p->v;        // Update positions
         }
     }
 };
